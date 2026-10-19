@@ -1,0 +1,15 @@
+{
+  "name": "notes-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A tiny notes app with no dependencies: the example project for falsifiable, with one proposed change ready to ship.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test \"test/**/*.test.mjs\""
+  }
+}

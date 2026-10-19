@@ -1,0 +1,86 @@
+[
+  {
+    "name": "protected paths are matched by absolute path, not worktree-relative",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  const root = worktreeRoot(p);\n  return root ? toPosix(path.relative(root, p)) : toPosix(p);",
+    "replace": "  return toPosix(p);",
+    "tests": ["test/guard/paths.test.mjs"]
+  },
+  {
+    "name": "a write through a symlink is judged only as written",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "    return real === p ? null : matchable(real);",
+    "replace": "    return null;",
+    "tests": ["test/guard/paths.test.mjs"]
+  },
+  {
+    "name": "ln's target is not a write",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  else if (name === 'ln') targets.push(...nonOpt);",
+    "replace": "  else if (name === 'ln' && false) targets.push(...nonOpt);",
+    "tests": ["test/guard/paths.test.mjs", "test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "cp -t target directory is ignored",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "    if (targetDir !== undefined) targets.push(targetDir);",
+    "replace": "    if (targetDir !== undefined && false) targets.push(targetDir);",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "tar extraction directory is ignored",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  } else if (name === 'tar' && isTarExtract(argv)) {",
+    "replace": "  } else if (name === 'tar' && false) {",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a git apply patch target is not read",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  if (sub === 'apply' || sub === 'am') return patchTargets(argv, dir);",
+    "replace": "  if (sub === 'apply' || sub === 'am') return [];",
+    "tests": ["test/guard/paths.test.mjs"]
+  },
+  {
+    "name": "a git checkout pathspec dot reaches nothing",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  if (p === '.' || p === ':/' || p === ':(top)' || p === ':(top,glob)') return '**';",
+    "replace": "  if (false) return '**';",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "an MCP write tool may change a protected path",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  if (unlocked(ctx) || !MCP_WRITE_VERB.test(name)) return null;",
+    "replace": "  if (true) return null;",
+    "tests": ["test/guard/engine.test.mjs", "test/guard/paths.test.mjs"]
+  },
+  {
+    "name": "the claude CLI may change the harness",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "  if (!CLAUDE_HARNESS[group]?.includes(action)) return null;",
+    "replace": "  if (true) return null;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "an unresolvable program name is not judged as a guarded program",
+    "file": "lib/guard/engine.mjs",
+    "find": "    if (/[$`]/.test(cmd.argv[0] ?? '')) {",
+    "replace": "    if (false) {",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "an unquoted heredoc body is left inert",
+    "file": "lib/guard/shell.mjs",
+    "find": "      if (quoted || depth >= 3) continue;",
+    "replace": "      if (true || quoted || depth >= 3) continue;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a heredoc fed to a shell is not parsed as a script",
+    "file": "lib/guard/shell.mjs",
+    "find": "      const script = SHELLS.has(binName(cmd ?? '')) ? body : commandSubs(body).join('\\n');",
+    "replace": "      const script = SHELLS.has(binName(cmd ?? '')) ? '' : commandSubs(body).join('\\n');",
+    "tests": ["test/guard/engine.test.mjs"]
+  }
+]

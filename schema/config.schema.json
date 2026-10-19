@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kyivcoder/falsifiable/blob/main/schema/config.schema.json",
+  "title": "falsifiable project config (.claude/falsifiable.json)",
+  "description": "Every key is optional; a missing key takes its default. Arrays replace their default, objects merge with it.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "guard": {
+      "description": "What the guard hook blocks. Every pack is on by default.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "packs": {
+          "description": "Rule packs to enable.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["git", "github", "database", "deploy", "paths", "secrets"] }
+        },
+        "protectedBranches": {
+          "description": "Branches agents never push to, force-push or commit to through an MCP tool.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "localHosts": {
+          "description": "Database hosts that count as local. Any other host is treated as production.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "protectedPaths": {
+          "description": "Globs agents never write. Added to the built-in set: .claude/settings.json, .claude/settings.local.json, .claude/falsifiable.json, .claude/hooks/**, .mcp.json. A glob matches at any folder depth.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "unlockEnv": {
+          "description": "An environment variable that, set to 1 when a person starts the session, lets that session change protected paths.",
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "blockCommands": {
+          "description": "Extra commands to block, matched on the words of each simple command after the guard unwraps env, sudo, npx and similar.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "argv", "why", "instead"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+              "argv": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+              "why": { "type": "string", "minLength": 1 },
+              "instead": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "delivery": {
+      "description": "How /falsifiable:ship plans and builds a change.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "specsDir": { "description": "The OpenSpec root: change folders live in <specsDir>/changes/<id>/.", "type": "string", "minLength": 1 },
+        "baseBranch": { "description": "The branch pull requests target.", "type": "string", "minLength": 1 },
+        "domains": {
+          "description": "Areas of the code. Every lane belongs to one domain; the domain says how its work is proven.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["owns", "proof", "gate"],
+            "properties": {
+              "owns": { "description": "Globs this domain covers.", "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+              "proof": { "description": "How a change here is proven, in a sentence the builder reads.", "type": "string", "minLength": 1 },
+              "gate": { "description": "The command a builder runs before it reports done.", "type": "string", "minLength": 1 },
+              "escalate": { "description": "What a builder stops and reports instead of doing.", "type": "string" }
+            }
+          }
+        },
+        "sensitivePaths": {
+          "description": "Named areas (auth, billing, migrations...). A lane that owns a path here waits for a person's decision before any builder starts. Guard-protected paths are always sensitive.",
+          "type": "object",
+          "additionalProperties": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "maxLanes": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "maxParallelBuilders": { "type": "integer", "minimum": 1, "maximum": 4 },
+            "maxFixRounds": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "maxAgentsPerRun": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "maxScouts": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        }
+      }
+    },
+    "verify": {
+      "description": "How the verifier reaches the running app, and the little it may read and run. It only ever drives a local app.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "baseUrl": { "type": "string", "pattern": "^https?://(localhost|127\\.0\\.0\\.1|\\[::1\\])(:[0-9]+)?(/.*)?$" },
+        "health": { "description": "URLs that must answer before any scenario runs.", "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "credentialEnv": { "description": "Names of environment variables that hold test sign-in credentials. Values are never printed.", "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } },
+        "instruments": { "description": "How to exercise the app: which test runner, browser tool or HTTP calls.", "type": "string" },
+        "readPaths": { "description": "Globs the verifier may read besides the change's spec files and .verify/: test instruments such as page objects or fixtures. Everything else in the repository is closed to it.", "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "commands": { "description": "Commands the verifier may run besides curl to the local app, each as the words it starts with, such as [\"npx\", \"playwright\", \"test\"].", "type": "array", "items": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } } },
+        "mcpServers": { "description": "MCP servers the verifier may use, by name or part of a name (a browser server, for example). Every other MCP tool is closed to it.", "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "sweep": { "description": "Pages or endpoints the verifier loads once to catch regressions outside the scenarios.", "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "checklist": { "description": "The review checklist: lines of the form - `slug`: what to check. [review:slug] tags resolve here.", "type": "string", "minLength": 1 },
+        "secondOpinion": { "description": "A read-only command for a second model, given the review prompt as its last argument. Empty means none.", "type": "string" }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "files": { "description": "Globs of rulebooks whose rules must each name an enforcer.", "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

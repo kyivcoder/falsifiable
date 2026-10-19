@@ -1,0 +1,163 @@
+[
+  {
+    "name": "a bare push while on a protected branch no longer counts",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "  if (refspecs.length === 0 && !all && !matching) target = bare();\n",
+    "replace": "",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "only the first protected branch is checked, by exact name",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "guard.protectedBranches.some((glob) => matches(glob, branch));",
+    "replace": "guard.protectedBranches[0] === branch;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "npx is no longer unwrapped",
+    "file": "lib/guard/shell.mjs",
+    "find": "    if (bin === 'npx' || bin === 'bunx' || bin === 'pnpx') {",
+    "replace": "    if (bin === 'bunx' || bin === 'pnpx') {",
+    "tests": ["test/guard/shell.test.mjs", "test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "env no longer skips its assignments",
+    "file": "lib/guard/shell.mjs",
+    "find": "    if (bin === 'env') {\n      i = skipOptions(words, i + 1, ['-u', '--unset', '-C', '--chdir', '-S', '--split-string']);\n      continue;\n    }\n",
+    "replace": "",
+    "tests": ["test/guard/shell.test.mjs", "test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a folder that holds a protected path is no longer protected",
+    "file": "lib/guard/packs/paths.mjs",
+    "find": "const holds = (t, g) => t.length > 0 && g.length > 0 && g[0] !== '**' && leadsInto(t, g);",
+    "replace": "const holds = () => false;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "git diff is no longer history for the verifier",
+    "file": "lib/guard/fence.mjs",
+    "find": "const GIT_HISTORY = new Set(['diff', 'show',",
+    "replace": "const GIT_HISTORY = new Set(['show',",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "patch options on git log are ignored for the verifier",
+    "file": "lib/guard/fence.mjs",
+    "find": "    const option = (sub === 'log' || sub === 'reflog') && args.find((a) => PATCH_OPTION.test(a.split('=')[0]));",
+    "replace": "    const option = false;",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "unreadable stdin is let through",
+    "file": "scripts/hook.mjs",
+    "find": "    return block(blockMessage('malformed-input', 'stdin is not valid JSON',",
+    "replace": "    return undefined && block(blockMessage('malformed-input', 'stdin is not valid JSON',",
+    "tests": ["test/guard/hook.test.mjs"]
+  },
+  {
+    "name": "a payload whose tool_input is not an object passes",
+    "file": "scripts/hook.mjs",
+    "find": "  if (!isObject(input)) return malformed(`tool_input for ${tool} is not an object`).message;",
+    "replace": "  if (!isObject(input)) return null;",
+    "tests": ["test/guard/hook.test.mjs"]
+  },
+  {
+    "name": "--help counts even after an option",
+    "file": "lib/guard/engine.mjs",
+    "find": "  return n >= 2 && argv[n - 1] === '--help' && argv.slice(1, n - 1).every((a) => !a.startsWith('-'));",
+    "replace": "  return argv.slice(1).includes('--help');",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "the branch is read from the cwd for every folder",
+    "file": "lib/guard/engine.mjs",
+    "find": "  return (loc) => (loc.gitDir === undefined && loc.dir === cwd0 ? request.branch : null);",
+    "replace": "  return () => request.branch;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "core.hooksPath to the guard's own hooks folder is allowed",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "  if (GUARD_OWN.has(v)) return false;\n",
+    "replace": "",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "GIT_CONFIG_KEY_n setting core.hooksPath is ignored",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "    const m = /^GIT_CONFIG_KEY_(\\d+)$/.exec(name);",
+    "replace": "    const m = null;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a wildcard refspec that can match a protected branch passes",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "      if (ctx.guard.protectedBranches.some((pb) => overlaps(dst, pb))) target = `a protected branch (the refspec ${refspec} can match one)`;",
+    "replace": "      if (false) target = `a protected branch (the refspec ${refspec} can match one)`;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a push refspec set with -c is ignored",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "    const m = /^remote\\.[^=]*\\.push=(.+)$/i.exec(c);",
+    "replace": "    const m = null;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a conninfo hostaddr is ignored",
+    "file": "lib/guard/packs/database.mjs",
+    "find": "    const value = m[2].replace(/^['\"]|['\"]$/g, '');\n    if (key === 'host' || key === 'hostaddr') hosts.push(...splitHosts(value));",
+    "replace": "    const value = m[2].replace(/^['\"]|['\"]$/g, '');\n    if (key === 'host') hosts.push(value);",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a Postgres service is not treated as unresolvable",
+    "file": "lib/guard/packs/database.mjs",
+    "find": "  if (env.PGSERVICE !== undefined || env.PGSERVICEFILE !== undefined) return service();",
+    "replace": "  if (false) return service();",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "PGHOST in the session is ignored",
+    "file": "lib/guard/packs/database.mjs",
+    "find": "  if (!commandHasHost && env.PGHOST !== undefined) {",
+    "replace": "  if (false) {",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a standalone assignment is exported to later commands",
+    "file": "lib/guard/shell.mjs",
+    "find": "    if (argv.length === 0) after = withAssigns(before, assigns, false);",
+    "replace": "    if (argv.length === 0) after = withAssigns(before, assigns, true);",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a quoted SQL identifier loses its name",
+    "file": "lib/guard/sql.mjs",
+    "find": "          ident += s[i];",
+    "replace": "          ident += '';",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "the advisory-lock functions are not write functions",
+    "file": "lib/guard/sql.mjs",
+    "find": "pg_(?:try_)?advisory(?:_xact)?_(?:lock|unlock)(?:_shared|_all)?|",
+    "replace": "",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a session started with the git hooks off blocks every git command",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "const set = Object.fromEntries(Object.entries(env).filter(([name, value]) => session[name] !== value));",
+    "replace": "const set = env;",
+    "tests": ["test/guard/engine.test.mjs"]
+  },
+  {
+    "name": "a command that changes a variable the session set is not seen",
+    "file": "lib/guard/packs/git.mjs",
+    "find": "filter(([name, value]) => session[name] !== value)",
+    "replace": "filter(([name]) => !Object.hasOwn(session, name))",
+    "tests": ["test/guard/engine.test.mjs"]
+  }
+]

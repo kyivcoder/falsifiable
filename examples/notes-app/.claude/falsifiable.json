@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../schema/config.schema.json",
+  "guard": {
+    "protectedBranches": ["main"],
+    "blockCommands": [
+      {
+        "id": "npm-publish",
+        "argv": ["npm", "publish"],
+        "why": "the notes app is a private example and is never published",
+        "instead": "leave publishing to the user"
+      }
+    ]
+  },
+  "delivery": {
+    "specsDir": "openspec",
+    "baseBranch": "main",
+    "domains": {
+      "api": {
+        "owns": ["server.mjs", "auth/**", "test/**"],
+        "proof": "an API test in test/ written first and seen failing, then passing",
+        "gate": "npm test",
+        "escalate": "a new dependency, or a route or response shape the approved spec does not describe"
+      },
+      "web": {
+        "owns": ["public/**"],
+        "proof": "the page checked in a browser against the change's product scenarios, with the API tests still passing",
+        "gate": "npm test",
+        "escalate": "a new dependency, a build step, or anything the approved spec does not cover"
+      }
+    },
+    "sensitivePaths": {
+      "auth": ["auth/**"]
+    },
+    "limits": { "maxLanes": 2 }
+  },
+  "verify": {
+    "baseUrl": "http://localhost:3000",
+    "health": ["http://localhost:3000/health"],
+    "credentialEnv": [],
+    "instruments": "HTTP calls with curl for /api/notes; a browser tool for the page at /",
+    "readPaths": [],
+    "commands": [],
+    "sweep": ["/", "/api/notes"]
+  }
+}

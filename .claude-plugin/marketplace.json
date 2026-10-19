@@ -1,0 +1,12 @@
+{
+  "name": "falsifiable",
+  "description": "The falsifiable plugin: enforced agent delivery for Claude Code.",
+  "owner": { "name": "Vladyslav Yefimenko" },
+  "plugins": [
+    {
+      "name": "falsifiable",
+      "source": "./",
+      "description": "Agents ship approved specs in parallel lanes; a tested guard keeps them out of production, a verifier that never sees the code tests the running app, and a person keeps the merge."
+    }
+  ]
+}

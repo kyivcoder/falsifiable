@@ -1,0 +1,114 @@
+[
+  {
+    "name": "an untagged rule passes",
+    "file": "scripts/check-rules.mjs",
+    "find": "      if (error) {\n        fail(error);\n        continue;\n      }",
+    "replace": "      if (error) {\n        continue;\n      }",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a tag that resolves to nothing passes",
+    "file": "scripts/check-rules.mjs",
+    "find": "const unresolved = await resolve[tag.kind](tag.value, { file });",
+    "replace": "const unresolved = (await resolve[tag.kind](tag.value, { file }), null);",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a rule with two tags passes",
+    "file": "scripts/check-rules.mjs",
+    "find": "  if (tags.length > 1) return { error: `${tags.length} enforcement tags; a rule names exactly one` };\n  const [match] = tags;",
+    "replace": "  const match = tags.at(-1);",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a tag inside inline code counts",
+    "file": "scripts/check-rules.mjs",
+    "find": "const text = ruleText.replace(INLINE_CODE, (span) => ' '.repeat(span.length)).trimEnd();",
+    "replace": "const text = ruleText.trimEnd();",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a hook tag in a pack the config turns off passes",
+    "file": "scripts/check-rules.mjs",
+    "find": "if (!custom.has(id) && PACKS.includes(pack) && !config.guard.packs.includes(pack)) {",
+    "replace": "if (false) {",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a planning problem in a valid config stops the rule check",
+    "file": "scripts/check-rules.mjs",
+    "find": "  if (loaded.fallback) {",
+    "replace": "  if (loaded.problems.length) {",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a config that breaks the schema is checked anyway",
+    "file": "scripts/check-rules.mjs",
+    "find": "  if (loaded.fallback) {",
+    "replace": "  if (false) {",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "the example app stores a note with empty text",
+    "file": "examples/notes-app/server.mjs",
+    "find": "  if (text === '') return 'text must not be empty';\n",
+    "replace": "",
+    "tests": ["examples/notes-app/test/notes.test.mjs"]
+  },
+  {
+    "name": "a check tag resolves when no CI workflow or git hook runs it",
+    "file": "scripts/check-rules.mjs",
+    "find": "ran ??= ranChecks(root, sources);\n    if (ran.has(name)) return null;",
+    "replace": "return null;",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a script reached only through another script does not count",
+    "file": "lib/runs.mjs",
+    "find": "queue.push(...scriptCalls(scripts.get(name)));",
+    "replace": "void 0;",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a git hook that cannot stop a commit or a push counts",
+    "file": "lib/runs.mjs",
+    "find": ".filter((name) => BLOCKING_HOOKS.has(name))",
+    "replace": ".filter(() => true)",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a step whose own working-directory is another folder counts",
+    "file": "lib/runs.mjs",
+    "find": "const dir = mappingOf(k).find((j) => records[j].key === 'working-directory');",
+    "replace": "const dir = undefined;",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a command after a cd counts",
+    "file": "lib/runs.mjs",
+    "find": "if ((program === 'cd' || program === 'pushd') && !ROOT_DIRS.has(args[0] ?? '')) break;",
+    "replace": "if (false) break;",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a script run in another package counts",
+    "file": "lib/runs.mjs",
+    "find": "if (Object.hasOwn(ELSEWHERE, program) && own.some((word) => ELSEWHERE[program].has(option(word)))) return [];",
+    "replace": "",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a make recipe line continued with a backslash is two commands",
+    "file": "lib/runs.mjs",
+    "find": "if (continued && recipe.length > 0) recipe[recipe.length - 1] += ` ${command}`;\n        else recipe.push(command);",
+    "replace": "recipe.push(command);",
+    "tests": ["test/check-rules.test.mjs"]
+  },
+  {
+    "name": "a dry-run make counts as a run",
+    "file": "lib/runs.mjs",
+    "find": "MAKE_ELSEWHERE.test(word) || MAKE_DRY.test(word)",
+    "replace": "MAKE_ELSEWHERE.test(word)",
+    "tests": ["test/check-rules.test.mjs"]
+  }
+]

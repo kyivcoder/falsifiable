@@ -1,0 +1,7 @@
+{
+  "guard": {
+    "blockCommands": [
+      { "id": "npm-publish", "argv": ["npm", "publish"], "why": "the package is private", "instead": "ask the user to publish it" }
+    ]
+  }
+}

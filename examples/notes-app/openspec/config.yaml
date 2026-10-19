@@ -1,0 +1,20 @@
+# OpenSpec project configuration for the notes app.
+# `context` and `rules` are added to what `openspec instructions <artifact>` prints.
+schema: spec-driven
+
+context: |
+  A notes app with no dependencies. server.mjs is a Node HTTP server with an
+  in-memory store: GET /health, GET /api/notes, POST /api/notes, and GET / for
+  the page in public/index.html. Notes are lost when the server restarts.
+
+  openspec/specs/<capability>/spec.md is the current behaviour.
+  openspec/changes/<id>/ is a change in flight: proposal.md, requirement
+  deltas under specs/, and tasks.md once the planner has split it into lanes.
+
+rules:
+  proposal:
+    - "Why states the problem as a user of the page or the API would notice it."
+    - "Approval happens in the pull request conversation. Never record approvals or chat quotes in a file."
+  specs:
+    - "Requirements describe behaviour a user sees in the page or gets from the API. Never name functions or files."
+    - "Every requirement has at least one scenario with WHEN and THEN bullets, and AND for extra outcomes."

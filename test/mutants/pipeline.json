@@ -1,0 +1,191 @@
+[
+  {
+    "name": "two lanes that own the same path are accepted",
+    "file": "workflows/ship-stage.js",
+    "find": "if (overlaps(x, y)) problems.push(",
+    "replace": "if (false && overlaps(x, y)) problems.push(",
+    "tests": [
+      "test/workflows/ship-plan.test.mjs"
+    ]
+  },
+  {
+    "name": "a new test whose red run exited 0 is accepted",
+    "file": "workflows/ship-stage.js",
+    "find": "if (!t.redCommand.trim() || t.redExitCode === 0 || !t.redExcerpt.trim()) {",
+    "replace": "if (!t.redCommand.trim() || !t.redExcerpt.trim()) {",
+    "tests": [
+      "test/workflows/ship-build.test.mjs"
+    ]
+  },
+  {
+    "name": "a run may start one agent more than its budget",
+    "file": "workflows/ship-stage.js",
+    "find": "  if (agentsStarted >= MAX_AGENTS_PER_RUN) {",
+    "replace": "  if (agentsStarted >= MAX_AGENTS_PER_RUN + 1) {",
+    "tests": [
+      "test/workflows/contracts.test.mjs"
+    ]
+  },
+  {
+    "name": "one fix round past maxFixRounds runs without asking the user",
+    "file": "workflows/ship-stage.js",
+    "find": "if (round > MAX_FIX_ROUNDS) {",
+    "replace": "if (round > MAX_FIX_ROUNDS + 1) {",
+    "tests": [
+      "test/workflows/ship-verify.test.mjs"
+    ]
+  },
+  {
+    "name": "a base URL counts as local when it only starts like a local one",
+    "file": "workflows/ship-stage.js",
+    "find": "const LOCAL_URL = /^https?:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\])(:\\d+)?(\\/[^\\\\\\x00-\\x20\\x7f]*)?$/",
+    "replace": "const LOCAL_URL = /^https?:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\])/",
+    "tests": [
+      "test/workflows/ship-verify.test.mjs"
+    ]
+  },
+  {
+    "name": "the guard-protected paths are no longer a sensitive area",
+    "file": "workflows/ship-stage.js",
+    "find": "  [GUARDRAILS]: [...new Set([...(delivery.sensitivePaths[GUARDRAILS] ?? []), ...guard.protectedPaths])],",
+    "replace": "  [GUARDRAILS]: [...(delivery.sensitivePaths[GUARDRAILS] ?? [])],",
+    "tests": [
+      "test/workflows/ship-plan.test.mjs"
+    ]
+  },
+  {
+    "name": "the glob copy in the workflow no longer reads a backslash as a slash",
+    "file": "workflows/ship-stage.js",
+    "find": "String(pattern).replace(/\\\\/g, '/').replace(/^\\.\\//, '')",
+    "replace": "String(pattern).replace(/^\\.\\//, '')",
+    "tests": [
+      "test/workflows/glob-parity.test.mjs"
+    ]
+  },
+  {
+    "name": "the verifier prompt names the change branch",
+    "file": "workflows/ship-stage.js",
+    "find": "    `Change: ${input.id}`,\n    `Product scenarios to judge",
+    "replace": "    `Change: ${input.id} on ${input.base}`,\n    `Product scenarios to judge",
+    "tests": [
+      "test/workflows/ship-verify.test.mjs"
+    ]
+  },
+  {
+    "name": "merge-lanes merges onto uncommitted changes",
+    "file": "scripts/merge-lanes.mjs",
+    "find": "if (git('status', '--porcelain', '--untracked-files=no').out !== '') {",
+    "replace": "if (false) {",
+    "tests": [
+      "test/merge-lanes.test.mjs"
+    ]
+  },
+  {
+    "name": "a lane whose own path names a sensitive folder at any depth needs no decision",
+    "file": "workflows/ship-stage.js",
+    "find": "  return atAnyDepth(glob) ? overlaps(named(owned), glob) : overlaps(owned, glob)",
+    "replace": "  return atAnyDepth(glob) ? false : overlaps(owned, glob)",
+    "tests": [
+      "test/workflows/ship-plan.test.mjs"
+    ]
+  },
+  {
+    "name": "a done lane needs no passing run of its gate",
+    "file": "workflows/ship-stage.js",
+    "find": "  if (!report.checks.some((c) => c.expect",
+    "replace": "  if (false && !report.checks.some((c) => c.expect",
+    "tests": [
+      "test/workflows/ship-build.test.mjs"
+    ]
+  },
+  {
+    "name": "a fix round report replaces the build report of its lane",
+    "file": "workflows/ship-stage.js",
+    "find": ".map((r) => [`${r.lane}@${r.headSha}`, r]))",
+    "replace": ".map((r) => [r.lane, r]))",
+    "tests": [
+      "test/workflows/ship-verify.test.mjs"
+    ]
+  },
+  {
+    "name": "a protected branch is matched by its exact name only",
+    "file": "workflows/ship-stage.js",
+    "find": "  typeof branch === 'string' && PROTECTED_BRANCHES.some((glob) => matches(glob.toLowerCase(), branch.toLowerCase()))",
+    "replace": "  typeof branch === 'string' && PROTECTED_BRANCHES.includes(branch)",
+    "tests": [
+      "test/workflows/ship-config.test.mjs"
+    ]
+  },
+  {
+    "name": "a backslash in a path on the app is accepted",
+    "file": "workflows/ship-stage.js",
+    "find": "const APP_PATH = /^\\/(?![/\\\\])[^\\\\\\x00-\\x20\\x7f]*$/",
+    "replace": "const APP_PATH = /^\\/(?!\\/)\\S*$/",
+    "tests": [
+      "test/workflows/ship-verify.test.mjs"
+    ]
+  },
+  {
+    "name": "a lane path only has to overlap its domain",
+    "file": "workflows/ship-stage.js",
+    "find": "    else if (!domain.owns.some((glob) => contains(glob, owned))) {",
+    "replace": "    else if (!domain.owns.some((glob) => overlaps(glob, owned))) {",
+    "tests": [
+      "test/workflows/ship-plan.test.mjs"
+    ]
+  },
+  {
+    "name": "a changed file in a sensitive area the decision did not cover is accepted",
+    "file": "workflows/ship-stage.js",
+    "find": "    for (const area of areasOfFile(file).filter((a) => !approved.includes(a))) {",
+    "replace": "    for (const area of [].filter((a) => !approved.includes(a))) {",
+    "tests": [
+      "test/workflows/ship-build.test.mjs"
+    ]
+  },
+  {
+    "name": "a merged lane whose worktree survives does not stop merge-lanes",
+    "file": "scripts/merge-lanes.mjs",
+    "find": "  if (!worktree.ok) return { ok: false, line: `${lane}: merged, but ${worktree.note}` }",
+    "replace": "",
+    "tests": [
+      "test/merge-lanes.test.mjs"
+    ]
+  },
+  {
+    "name": "the reviewer is not told what the diff holds without a lane report",
+    "file": "workflows/ship-stage.js",
+    "find": "    expectedWithoutReport(delivery.specsDir, input.id, false),\n",
+    "replace": "",
+    "tests": [
+      "test/workflows/ship-verify.test.mjs"
+    ]
+  },
+  {
+    "name": "every folder lane is asked about a sensitive folder at any depth it could hold",
+    "file": "workflows/ship-stage.js",
+    "find": "  return atAnyDepth(glob) ? overlaps(named(owned), glob) : overlaps(owned, glob)",
+    "replace": "  return overlaps(owned, glob)",
+    "tests": [
+      "test/workflows/ship-plan.test.mjs"
+    ]
+  },
+  {
+    "name": "the gate counts wherever its words appear in a check",
+    "file": "workflows/ship-stage.js",
+    "find": "said[at + i] && startsWith(said[at + i], prefix)",
+    "replace": "said[at + i] && said[at + i].join(' ').includes(prefix.join(' '))",
+    "tests": [
+      "test/workflows/ship-build.test.mjs"
+    ]
+  },
+  {
+    "name": "leading VAR=value assignments hide a run of the gate",
+    "file": "workflows/ship-stage.js",
+    "find": "  return start === -1 ? [] : words.slice(start)",
+    "replace": "  return words",
+    "tests": [
+      "test/workflows/ship-build.test.mjs"
+    ]
+  }
+]

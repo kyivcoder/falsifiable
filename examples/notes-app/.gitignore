@@ -1,0 +1,2 @@
+# The verifier keeps its evidence here; it is not part of the app.
+.verify/

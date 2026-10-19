@@ -1,0 +1,58 @@
+[
+  {
+    "name": "the verifier read allow-list lets anything through",
+    "file": "lib/guard/fence.mjs",
+    "find": "    if (!policy.reads.some((glob) => matches(lower(glob), lower(relative)))) {\n      return `${relative} is outside the change specs, .verify/ and the configured read paths`;\n    }",
+    "replace": "    if (false) {\n      return `${relative} is outside the change specs, .verify/ and the configured read paths`;\n    }",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "the verifier write allow-list lets anything through",
+    "file": "lib/guard/fence.mjs",
+    "find": "    return globs.some((glob) => contains(lower(glob), lower(relative))) ? null : `${relative} is outside it`;",
+    "replace": "    return null;",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "curl may reach any host",
+    "file": "lib/guard/fence.mjs",
+    "find": "  return localHosts.includes(host) ? null : `is not on a local host (${host})`;",
+    "replace": "  return null;",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "a program off the verifier allow-list is allowed",
+    "file": "lib/guard/fence.mjs",
+    "find": "  return { rule: 'fence-tool', why: `the verifier may run only curl or wget to the local app, a few housekeeping commands and the commands it is configured to run, and ${name} is none of them`, instead: PROGRAM_INSTEAD };",
+    "replace": "  return null;",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "a program off the reviewer allow-list is allowed",
+    "file": "lib/guard/fence.mjs",
+    "find": "  else reason = `${name} is not a read-only command`;",
+    "replace": "  else reason = null;",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "the diff refusal never fires for the verifier",
+    "file": "lib/guard/fence.mjs",
+    "find": "    if (GIT_HISTORY.has(sub)) return `git ${sub}`;",
+    "replace": "    if (false) return `git ${sub}`;",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "an input redirect is not treated as a read",
+    "file": "lib/guard/fence.mjs",
+    "find": "      for (const word of cmd.inputs ?? []) {",
+    "replace": "      for (const word of []) {",
+    "tests": ["test/guard/fence.test.mjs"]
+  },
+  {
+    "name": "a reviewer MCP write tool is allowed",
+    "file": "lib/guard/fence.mjs",
+    "find": "    return READ_SHAPED.test(name) && !WRITE_VERB.test(name)",
+    "replace": "    return (READ_SHAPED.test(name) || true)",
+    "tests": ["test/guard/fence.test.mjs"]
+  }
+]

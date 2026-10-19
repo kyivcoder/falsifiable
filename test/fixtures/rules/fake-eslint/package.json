@@ -1,0 +1,7 @@
+{
+  "name": "eslint",
+  "version": "0.0.0-fixture",
+  "private": true,
+  "type": "module",
+  "exports": "./index.mjs"
+}

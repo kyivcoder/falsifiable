@@ -1,0 +1,8 @@
+{
+  "name": "fixture-project",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "lint": "echo lint"
+  }
+}

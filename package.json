@@ -1,0 +1,20 @@
+{
+  "name": "falsifiable",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Claude Code plugin where every promise an agent makes is a check that can fail.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Vladyslav Yefimenko",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "check:rules": "node scripts/check-rules.mjs",
+    "mutants": "node scripts/mutants.mjs",
+    "check:example": "node scripts/config.mjs --check examples/notes-app && node scripts/check-rules.mjs examples/notes-app && npm --prefix examples/notes-app test",
+    "validate": "claude plugin validate --strict .claude-plugin/plugin.json && claude plugin validate --strict .",
+    "check": "npm test && npm run check:rules && npm run check:example"
+  }
+}
